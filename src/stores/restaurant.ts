@@ -48,10 +48,9 @@ export const useRestaurantStore = defineStore('restaurant', () => {
             const loginResponse = await loginAnonymously()
             const results = await searchRestaurants(
                 loginResponse.jwt_token,
-                searchId.value,
-                currentPage.value + 1
+                searchId.value
             )
-            console.log('📍 Additional results:', results)
+            console.log('�� Additional results:', results)
             
             restaurants.value = [...existingRestaurants, ...results.posts]
             currentPage.value++

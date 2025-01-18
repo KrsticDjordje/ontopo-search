@@ -109,3 +109,9 @@ function handleSearch() {
         </button>
     </div>
 </template>
+
+<script lang="ts">
+export default {
+    name: 'SearchForm'
+}
+</script>

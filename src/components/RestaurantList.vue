@@ -26,7 +26,7 @@ function formatTime(time: string) {
 }
 
 // Helper za ikone područja
-const areaIcons = {
+const areaIcons: { [key: string]: string } = {
     'outside': '🌳',
     'inside': '🏠',
     'default': '🍽️'
