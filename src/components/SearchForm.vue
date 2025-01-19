@@ -20,22 +20,49 @@ const selectedSize = computed({
     set: (value) => emit('update:size', value)
 })
 
+// Helper za dobijanje današnjeg datuma u ISO formatu
+function getTodayDate(): string {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0) // Resetovanje vremena na početak dana
+    return today.toISOString().split('T')[0]
+}
+
+// Helper za proveru da li je datum danas
+function isToday(date: string): boolean {
+    const today = getTodayDate()
+    return date === today
+}
+
 // Helper za proveru da li treba prikazati sutrašnji dan
 function shouldShowNextDay(): boolean {
     const now = new Date()
     const currentHour = now.getHours()
     const currentMinutes = now.getMinutes()
-    return currentHour >= 21 || (currentHour === 20 && currentMinutes > 30)
+
+    // Ako je rano ujutru (pre 8:00)
+    if (currentHour < 8) {
+        return true
+    }
+
+    // Ako je kasno uveče (posle 21:00)
+    if (currentHour >= 21 || (currentHour === 20 && currentMinutes > 30)) {
+        return true
+    }
+
+    return false
 }
 
 // Inicijalno postavljanje datuma
 function getInitialDate(): string {
+    const today = getTodayDate()
+
     if (shouldShowNextDay()) {
         const tomorrow = new Date()
         tomorrow.setDate(tomorrow.getDate() + 1)
         return tomorrow.toISOString().split('T')[0]
     }
-    return new Date().toISOString().split('T')[0]
+
+    return today
 }
 
 // Postavljamo inicijalne vrednosti
@@ -68,18 +95,17 @@ function getAvailableTimeOptions(): { value: string; label: string; }[] {
     const now = new Date()
     const currentHour = now.getHours()
     const currentMinutes = now.getMinutes()
-    const selectedDateIsToday = selectedDate.value === new Date().toISOString().split('T')[0]
+    const selectedDateIsToday = isToday(selectedDate.value)
 
-    // Ako je manje od 2h do kraja radnog vremena (23:00)
-    if (selectedDateIsToday && (currentHour >= 21 || (currentHour === 20 && currentMinutes > 30))) {
+    // Ako je danas i vreme je van radnog vremena, prebacujemo na sutra
+    if (selectedDateIsToday && shouldShowNextDay()) {
         const tomorrow = new Date()
         tomorrow.setDate(tomorrow.getDate() + 1)
         selectedDate.value = tomorrow.toISOString().split('T')[0]
-        // Vraćamo pun raspored za sutra
         return generateFullSchedule()
     }
 
-    // Za današnji dan, prikazujemo samo dostupne termine (2h unapred)
+    // Za današnji dan, prikazujemo samo dostupne termine
     if (selectedDateIsToday) {
         const minHour = currentHour + 2
         const minMinutes = currentMinutes
@@ -189,7 +215,7 @@ function handleSearch() {
         <div class="w-full md:w-auto md:flex-1 md:px-3 md:border-x md:border-gray-200">
             <input type="date" v-model="selectedDate"
                 class="w-full appearance-none bg-gray-50 sm:bg-transparent text-left px-4 py-4 text-base md:text-lg cursor-pointer focus:outline-none"
-                :min="new Date().toISOString().split('T')[0]">
+                :min="getTodayDate()">
         </div>
 
         <!-- Vreme -->

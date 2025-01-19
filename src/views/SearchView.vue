@@ -28,7 +28,14 @@ function getTimeLabel(time: string): string {
 const partySizes = [
     { value: '1', label: '1 osoba' },
     { value: '2', label: '2 osobe' },
-    // ... ostale opcije
+    { value: '3', label: '3 osobe' },
+    { value: '4', label: '4 osobe' },
+    { value: '5', label: '5 osoba' },
+    { value: '6', label: '6 osoba' },
+    { value: '7', label: '7 osoba' },
+    { value: '8', label: '8 osoba' },
+    { value: '9', label: '9 osoba' },
+    { value: '10', label: '10 osoba' }
 ]
 
 async function handleSearch(criteria: { size: string; date: string; time: string }) {
