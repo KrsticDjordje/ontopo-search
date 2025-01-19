@@ -119,7 +119,7 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Srednja kolona - Informacije -->
-                    <div class="flex-1 p-6 border-r border-gray-200">
+                    <div class="flex-1 p-6 border-b sm:border-b-0 sm:border-r border-gray-200">
                         <h3 class="text-xl font-semibold mb-2">{{ restaurant.post.venue_name }}</h3>
                         <p class="text-gray-600 mb-1">{{ restaurant.availability.formattedRequest.service }}</p>
                         <p class="text-gray-500 text-sm flex items-center gap-1 hidden sm:flex mt-10">
@@ -174,7 +174,7 @@ onUnmounted(() => {
                                         .sort((a, b) => parseInt(a.time) - parseInt(b.time))" :key="option.time"
                                         class="flex flex-col">
                                         <button
-                                            class="w-full px-2 py-2 bg-white text-gray-700 hover:bg-green-100 border border-green-300 transition-colors duration-200">
+                                            class="w-full px-1 py-2 bg-white text-gray-700 hover:bg-green-100 border border-green-300 transition-colors duration-200">
                                             {{ formatTime(option.time) }}
                                             <p class="text-sm text-gray-500 mt-1 hidden sm:block">Rezerviši sada</p>
                                         </button>

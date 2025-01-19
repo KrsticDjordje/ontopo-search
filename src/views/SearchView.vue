@@ -98,7 +98,7 @@ async function handleSearch(criteria: { size: string; date: string; time: string
                     leave-active-class="transition duration-300 ease-in"
                     leave-from-class="transform translate-y-0 opacity-100"
                     leave-to-class="transform translate-y-10 opacity-0">
-                    <div v-if="showResults" ref="resultsRef" class="mt-8 bg-white rounded-2xl shadow-xl p-8">
+                    <div v-if="showResults" ref="resultsRef" class="mt-8 bg-white rounded-2xl shadow-xl p-6 sm:p-8">
                         <!-- Prikaz izabranih kriterijuma -->
                         <div class="mb-8 pb-6 border-b border-gray-200">
                             <h2 class="text-2xl font-semibold mb-4">Rezultati pretrage</h2>
