@@ -58,9 +58,9 @@ async function handleSearch(criteria: { size: string; date: string; time: string
 
         <!-- Main Content -->
         <main class="bg-[#CCE6FF] pt-16">
-            <div class="max-w-7xl mx-auto px-4">
+            <div class="max-w-7xl mx-auto px-4 pb-5">
                 <!-- Landing sekcija -->
-                <div class="pt-14 pb-5">
+                <div class="pt-8 pb-2">
                     <div class="flex flex-col md:flex-row items-center md:gap-12">
                         <!-- Text i Search sekcija -->
                         <div class="flex-2 md:max-w-2xl">
