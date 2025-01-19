@@ -84,9 +84,9 @@ async function handleSearch(criteria: { size: string; date: string; time: string
                         </div>
 
                         <!-- Image sekcija - sakrivena na mobilnim uređajima -->
-                        <div class="hidden md:block flex-1">
+                        <div class="hidden md:block flex-1 justify-center items-center">
                             <img src="https://res.cloudinary.com/ontopo/image/upload/q_auto:eco,c_crop,x_0,y_0,w_1080,h_1080/w_750/v1708860226/assets/654b43cd4f616f00143332e3/654b43cd4f616f00143332e3/2.png"
-                                alt="Food plate" class="w-full rounded-full">
+                                alt="Food plate" class="w-full max-w-md rounded-full">
                         </div>
                     </div>
                 </div>
