@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ChevronDownIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps<{
     modelValue: string
@@ -36,13 +37,10 @@ onUnmounted(() => {
 <template>
     <div ref="dropdownRef" class="custom-dropdown">
         <button @click="isOpen = !isOpen" type="button"
-            class="dropdown-toggle w-full px-4 py-4 text-lg text-left bg-transparent hover:bg-gray-50 transition-colors duration-200 rounded-lg focus:outline-none">
+            class="dropdown-toggle w-full px-4 py-4 text-lg text-left bg-gray-50 sm:bg-transparent hover:bg-gray-50 transition-colors duration-200 rounded-lg focus:outline-none">
             <span class="block truncate">{{ selectedLabel || placeholder }}</span>
             <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': isOpen }" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+                <ChevronDownIcon class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': isOpen }" />
             </span>
         </button>
 

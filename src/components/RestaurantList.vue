@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import type { Restaurant } from '../types/api'
+import { MapPinIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps<{
     restaurants: Restaurant[]
@@ -122,12 +123,7 @@ onUnmounted(() => {
                         <h3 class="text-xl font-semibold mb-2">{{ restaurant.post.venue_name }}</h3>
                         <p class="text-gray-600 mb-1">{{ restaurant.availability.formattedRequest.service }}</p>
                         <p class="text-gray-500 text-sm flex items-center gap-1 hidden sm:flex mt-10">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
+                            <MapPinIcon class="w-4 h-4" />
                             Beograd
                         </p>
                     </div>
@@ -153,12 +149,9 @@ onUnmounted(() => {
                             <button @click="toggleTimeSlots(restaurant.post.slug)"
                                 class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-700 transition-all duration-200 flex items-center justify-center gap-2 group">
                                 <span>Ostali termini</span>
-                                <svg class="w-4 h-4 transition-transform duration-200 text-gray-400 group-hover:text-gray-500"
-                                    :class="{ 'rotate-180': expandedRestaurantId === restaurant.post.slug }" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" />
-                                </svg>
+                                <ChevronDownIcon
+                                    class="w-4 h-4 transition-transform duration-200 text-gray-400 group-hover:text-gray-500"
+                                    :class="{ 'rotate-180': expandedRestaurantId === restaurant.post.slug }" />
                             </button>
                         </div>
                     </div>

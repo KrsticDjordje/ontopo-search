@@ -188,7 +188,7 @@ function handleSearch() {
         <!-- Datum -->
         <div class="w-full md:w-auto md:flex-1 md:px-3 md:border-x md:border-gray-200">
             <input type="date" v-model="selectedDate"
-                class="w-full appearance-none bg-transparent text-left px-4 py-4 text-base md:text-lg cursor-pointer focus:outline-none"
+                class="w-full appearance-none bg-gray-50 sm:bg-transparent text-left px-4 py-4 text-base md:text-lg cursor-pointer focus:outline-none"
                 :min="new Date().toISOString().split('T')[0]">
         </div>
 
