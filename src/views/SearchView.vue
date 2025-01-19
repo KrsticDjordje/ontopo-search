@@ -95,7 +95,7 @@ async function handleSearch(criteria: { size: string; date: string; time: string
                         <div class="mb-8 pb-6 border-b border-gray-200">
                             <h2 class="text-2xl font-semibold mb-4">Rezultati pretrage</h2>
                             <div class="flex gap-6 text-gray-600">
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-1">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke-width="2"
                                             stroke-linecap="round" />
@@ -103,14 +103,14 @@ async function handleSearch(criteria: { size: string; date: string; time: string
                                     </svg>
                                     <span>{{ partySizes.find(s => s.value === selectedSize)?.label }}</span>
                                 </div>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-1">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2" />
                                         <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round" />
                                     </svg>
                                     <span>{{ formatDate(selectedDate) }}</span>
                                 </div>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-1">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <circle cx="12" cy="12" r="10" stroke-width="2" />
                                         <path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round" />

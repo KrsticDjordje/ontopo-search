@@ -134,7 +134,7 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Desna kolona - Termini -->
-                    <div class="p-6 w-full sm:w-80 flex-shrink-0 bg-gray-50">
+                    <div class="p-6 w-full sm:w-80 flex-shrink-0 bg-gray-100">
                         <!-- Glavni termini - izabrano vreme za prva tri područja -->
                         <div class="grid grid-cols-3 gap-2">
                             <template v-for="(area, index) in restaurant.availability?.areas || []" :key="area.id">
@@ -143,7 +143,7 @@ onUnmounted(() => {
                                     {{ console.log('Options:', area.options) }}
                                     {{ console.log('Requested Time:', requestedTime) }}
                                     <button v-if="area.options?.some(opt => isExactRequestedTime(opt.time))"
-                                        class="w-full px-4 py-2 bg-green-50 rounded-lg text-gray-700 hover:bg-green-100 transition-colors duration-200 border border-green-100">
+                                        class="w-full px-4 py-2 bg-green-50 rounded-lg text-gray-700 hover:bg-green-100 transition-colors duration-200 border border-green-300">
                                         <span class="text-lg">{{ formatTime(requestedTime || '') }}</span>
                                         <span class="block text-sm text-gray-500 mt-1">{{ area.name }}</span>
                                     </button>
@@ -192,6 +192,19 @@ onUnmounted(() => {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Loading spinner za infinite scroll -->
+            <div v-if="loading && !isInitialLoad" class="flex justify-center py-6">
+                <div class="flex items-center gap-3">
+                    <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span class="text-sm text-gray-500">Učitavanje restorana...</span>
                 </div>
             </div>
         </div>
