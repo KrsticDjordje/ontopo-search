@@ -2,9 +2,15 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { ChevronDownIcon } from '@heroicons/vue/24/outline'
 
+interface DropdownOption {
+    value: string
+    label: string
+    disabled?: boolean
+}
+
 const props = defineProps<{
     modelValue: string
-    options: Array<{ value: string; label: string }>
+    options: DropdownOption[]
     placeholder?: string
 }>()
 
@@ -52,10 +58,10 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                             isOpen = false;
                         }
                     }" :disabled="option.disabled" :class="[
-                            'w-full text-left px-4 py-3 text-lg transition-colors duration-200',
-                            option.value === modelValue ? 'bg-gray-50 text-gray-900' : 'text-gray-700',
-                            option.disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:bg-gray-100'
-                        ]">
+                        'w-full text-left px-4 py-3 text-lg transition-colors duration-200',
+                        option.value === modelValue ? 'bg-gray-50 text-gray-900' : 'text-gray-700',
+                        option.disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:bg-gray-100'
+                    ]">
                         {{ option.label }}
                     </button>
                 </div>

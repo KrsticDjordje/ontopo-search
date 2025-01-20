@@ -27,7 +27,14 @@ const selectedDate = computed({
 })
 
 const selectedTime = computed({
-    get: () => props.time || '2000',
+    get: () => {
+        // Ako nema prosleđenog vremena, uzima prvo dostupno
+        if (!props.time) {
+            const availableSlots = getAvailableTimeSlots()
+            return availableSlots.length > 0 ? availableSlots[0].value : '2000'
+        }
+        return props.time
+    },
     set: (value) => emit('update:time', value)
 })
 
@@ -104,11 +111,18 @@ const timeOptions = computed(() => getAvailableTimeSlots())
 
 // Event handlers
 function handleSearch() {
+    // Proveri da li je izabrano vreme dostupno
+    const availableSlots = getAvailableTimeSlots()
+    const selectedTimeSlot = availableSlots.find(slot => slot.value === selectedTime.value)
+
+    // Ako nije, uzmi prvo dostupno vreme
+    const timeToUse = selectedTimeSlot ? selectedTime.value : (availableSlots[0]?.value || '2000')
+
     const formattedDate = selectedDate.value.replace(/-/g, '')
     props.onSearch({
         size: selectedSize.value,
         date: formattedDate,
-        time: selectedTime.value
+        time: timeToUse
     })
 }
 </script>

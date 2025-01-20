@@ -26,32 +26,6 @@ function formatTime(time: string) {
     return time.replace(/(\d{2})(\d{2})/, '$1:$2')
 }
 
-// Pojednostavljeni helperi
-const areaIcons = {
-    'outside': '🌳',
-    'inside': '🏠',
-    'default': '🍽️'
-}
-
-function hasMoreTimeSlots(restaurant: Restaurant): boolean {
-    return restaurant.availability?.areas?.some(area => area.options?.length > 1) || false
-}
-
-function isRequestedTimeSlot(time: string): boolean {
-    if (!props.requestedTime) return false
-    const diff = Math.abs(parseInt(time) - parseInt(props.requestedTime))
-    return diff <= 30
-}
-
-function sortTimeSlots(area: any) {
-    if (!area.options) return []
-    return [...area.options].sort((a, b) => {
-        const aIsRequested = isRequestedTimeSlot(a.time)
-        const bIsRequested = isRequestedTimeSlot(b.time)
-        return aIsRequested === bIsRequested ? parseInt(a.time) - parseInt(b.time) : aIsRequested ? -1 : 1
-    })
-}
-
 // Helper za proveru da li je tačno traženo vreme
 function isExactRequestedTime(time: string): boolean {
     return props.requestedTime === time
@@ -151,7 +125,6 @@ onUnmounted(() => observer.value?.disconnect())
                             <div v-for="area in restaurant.availability.areas" :key="area.id" class="space-y-3">
                                 <!-- Naziv područja -->
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xl">{{ areaIcons[area.icon || 'default'] }}</span>
                                     <h4 class="font-medium text-gray-800">{{ area.name }}</h4>
                                 </div>
                                 <!-- Svi termini za područje -->
