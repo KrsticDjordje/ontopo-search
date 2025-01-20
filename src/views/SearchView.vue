@@ -13,26 +13,39 @@ const store = useRestaurantStore()
 // Helper za parsiranje datuma iz URL-a
 function parseQueryDate(dateStr?: string): string {
     if (!dateStr) return new Date().toISOString().split('T')[0]
-
-    // Ako je datum u formatu YYYYMMDD, konvertuj ga u YYYY-MM-DD
-    if (dateStr.length === 8) {
-        return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`
-    }
-    return dateStr
+    return dateStr.length === 8
+        ? `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`
+        : dateStr
 }
 
+// Varijable za form i prikaz
 const selectedSize = ref(route.query.size?.toString() || '2')
 const selectedDate = ref(parseQueryDate(route.query.date?.toString()))
 const selectedTime = ref(route.query.time?.toString() || '2000')
+const displayedSize = ref(selectedSize.value)
+const displayedDate = ref(selectedDate.value)
+const displayedTime = ref(selectedTime.value)
 
 // Helper za formatiranje datuma za prikaz
 function formatDate(date: string): string {
-    if (date === new Date().toISOString().split('T')[0]) return 'Danas'
-    const d = new Date(date)
-    return d.toLocaleDateString('sr-RS', { day: 'numeric', month: 'long' })
+    try {
+        const today = new Date().toISOString().split('T')[0]
+        if (date === today) return 'Danas'
+
+        // Konvertujemo string datum u Date objekat
+        const [year, month, day] = date.split('-').map(Number)
+        const dateObj = new Date(year, month - 1, day)
+
+        return new Intl.DateTimeFormat('sr-RS', {
+            day: 'numeric',
+            month: 'long'
+        }).format(dateObj)
+    } catch (error) {
+        console.error('Error formatting date:', error)
+        return date
+    }
 }
 
-// Opcije za vreme - prebačeno iz SearchForm
 function getTimeLabel(time: string): string {
     return `${time.slice(0, 2)}:${time.slice(2)}`
 }
@@ -52,13 +65,11 @@ const partySizes = [
 ]
 
 function handleSearch(criteria: { size: string; date: string; time: string }) {
-    router.push({
-        query: {
-            size: criteria.size,
-            date: criteria.date.replace(/-/g, ''), // Formatiramo datum za URL
-            time: criteria.time
-        }
-    })
+    displayedSize.value = criteria.size
+    displayedDate.value = parseQueryDate(criteria.date)
+    displayedTime.value = criteria.time
+
+    router.push({ query: criteria })
     store.initializeSearch(criteria)
 }
 
@@ -68,11 +79,15 @@ function handleBack() {
 
 onMounted(() => {
     if (route.query.size && route.query.date && route.query.time) {
-        store.initializeSearch({
+        const criteria = {
             size: route.query.size.toString(),
             date: route.query.date.toString(),
             time: route.query.time.toString()
-        })
+        }
+        displayedDate.value = parseQueryDate(criteria.date)
+        displayedSize.value = criteria.size
+        displayedTime.value = criteria.time
+        store.initializeSearch(criteria)
     }
 })
 </script>
@@ -109,15 +124,15 @@ onMounted(() => {
                         <div class="flex gap-6 text-gray-600">
                             <div class="flex items-center gap-1">
                                 <UserIcon class="w-5 h-5" />
-                                <span>{{ partySizes.find(s => s.value === selectedSize)?.label }}</span>
+                                <span>{{ partySizes.find(s => s.value === displayedSize)?.label }}</span>
                             </div>
                             <div class="flex items-center gap-1">
                                 <CalendarIcon class="w-5 h-5" />
-                                <span>{{ formatDate(selectedDate) }}</span>
+                                <span>{{ formatDate(displayedDate) }}</span>
                             </div>
                             <div class="flex items-center gap-1">
                                 <ClockIcon class="w-5 h-5" />
-                                <span>{{ getTimeLabel(selectedTime) }}</span>
+                                <span>{{ getTimeLabel(displayedTime) }}</span>
                             </div>
                         </div>
                     </div>
@@ -125,7 +140,7 @@ onMounted(() => {
                     <!-- Lista restorana -->
                     <RestaurantList :restaurants="store.restaurants" :has-more="store.restaurants.length < store.total"
                         :loading="store.isLoading" :is-initial-load="!store.restaurants.length"
-                        :requested-time="selectedTime" @load-more="store.loadMore" />
+                        :requested-time="displayedTime" @load-more="store.loadMore" />
                 </div>
             </div>
         </main>

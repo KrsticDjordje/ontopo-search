@@ -15,23 +15,18 @@ const emit = defineEmits<{
 const isOpen = ref(false)
 const dropdownRef = ref<HTMLDivElement | null>(null)
 
-const selectedLabel = computed(() => {
-    return props.options.find(opt => opt.value === props.modelValue)?.label || props.placeholder
-})
+const selectedLabel = computed(() =>
+    props.options.find(opt => opt.value === props.modelValue)?.label || props.placeholder
+)
 
-function handleClickOutside(event: MouseEvent) {
+const handleClickOutside = (event: MouseEvent) => {
     if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
         isOpen.value = false
     }
 }
 
-onMounted(() => {
-    document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside)
-})
+onMounted(() => document.addEventListener('click', handleClickOutside))
+onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 </script>
 
 <template>
@@ -52,12 +47,15 @@ onUnmounted(() => {
                 class="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg max-h-60 overflow-auto focus:outline-none">
                 <div class="py-1">
                     <button v-for="option in options" :key="option.value" @click="() => {
-                        emit('update:modelValue', option.value);
-                        isOpen = false;
-                    }" :class="[
-                        'w-full text-left px-4 py-3 text-lg hover:bg-gray-100 transition-colors duration-200',
-                        option.value === modelValue ? 'bg-gray-50 text-gray-900' : 'text-gray-700'
-                    ]">
+                        if (!option.disabled) {
+                            emit('update:modelValue', option.value);
+                            isOpen = false;
+                        }
+                    }" :disabled="option.disabled" :class="[
+                            'w-full text-left px-4 py-3 text-lg transition-colors duration-200',
+                            option.value === modelValue ? 'bg-gray-50 text-gray-900' : 'text-gray-700',
+                            option.disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:bg-gray-100'
+                        ]">
                         {{ option.label }}
                     </button>
                 </div>

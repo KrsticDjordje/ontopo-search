@@ -26,36 +26,29 @@ function formatTime(time: string) {
     return time.replace(/(\d{2})(\d{2})/, '$1:$2')
 }
 
-// Helper za ikone područja
-const areaIcons: { [key: string]: string } = {
+// Pojednostavljeni helperi
+const areaIcons = {
     'outside': '🌳',
     'inside': '🏠',
     'default': '🍽️'
 }
 
-// Helper za proveru da li ima više termina
 function hasMoreTimeSlots(restaurant: Restaurant): boolean {
     return restaurant.availability?.areas?.some(area => area.options?.length > 1) || false
 }
 
-// Helper za proveru da li je termin blizu traženog vremena (±30 min)
 function isRequestedTimeSlot(time: string): boolean {
     if (!props.requestedTime) return false
-    const requested = parseInt(props.requestedTime)
-    const current = parseInt(time)
-    const diff = Math.abs(requested - current)
-    return diff <= 30 // 30 minuta razlike
+    const diff = Math.abs(parseInt(time) - parseInt(props.requestedTime))
+    return diff <= 30
 }
 
-// Helper za sortiranje termina
 function sortTimeSlots(area: any) {
     if (!area.options) return []
     return [...area.options].sort((a, b) => {
         const aIsRequested = isRequestedTimeSlot(a.time)
         const bIsRequested = isRequestedTimeSlot(b.time)
-        if (aIsRequested && !bIsRequested) return -1
-        if (!aIsRequested && bIsRequested) return 1
-        return parseInt(a.time) - parseInt(b.time)
+        return aIsRequested === bIsRequested ? parseInt(a.time) - parseInt(b.time) : aIsRequested ? -1 : 1
     })
 }
 
@@ -71,29 +64,22 @@ function hasOtherTimeSlots(restaurant: Restaurant): boolean {
     ) || false
 }
 
-// Infinite scroll logika
+// Infinite scroll
 const observer = ref<IntersectionObserver | null>(null)
 const loadTrigger = ref<HTMLDivElement | null>(null)
 
 onMounted(() => {
-    observer.value = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting && props.hasMore && !props.loading) {
-            emit('loadMore')
-        }
-    }, {
-        rootMargin: '100px'
-    })
+    observer.value = new IntersectionObserver(
+        ([entry]) => entry.isIntersecting && props.hasMore && !props.loading && emit('loadMore'),
+        { rootMargin: '100px' }
+    )
 
     if (loadTrigger.value) {
         observer.value.observe(loadTrigger.value)
     }
 })
 
-onUnmounted(() => {
-    if (observer.value) {
-        observer.value.disconnect()
-    }
-})
+onUnmounted(() => observer.value?.disconnect())
 </script>
 
 <template>
@@ -111,7 +97,7 @@ onUnmounted(() => {
         <!-- Lista restorana -->
         <div v-else class="space-y-6">
             <div v-for="restaurant in restaurants" :key="restaurant.post.slug"
-                class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-200">
+                class="bg-[#f9f9f9] rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-200">
                 <div class="flex flex-col sm:flex-row">
                     <!-- Leva kolona - Slika -->
                     <div class="w-full sm:w-64 h-48 sm:h-auto flex-shrink-0">

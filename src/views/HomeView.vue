@@ -8,7 +8,7 @@ const router = useRouter()
 // Inicijalne vrednosti za formu
 const selectedSize = ref('2')
 const selectedDate = ref(new Date().toISOString().split('T')[0])
-const selectedTime = ref('2000')
+const selectedTime = ref('')
 
 function handleSearch(criteria: { size: string; date: string; time: string }) {
     router.push({

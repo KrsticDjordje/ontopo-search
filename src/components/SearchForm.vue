@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { computed } from 'vue'
 import CustomDropdown from '../components/CustomDropdown.vue'
 
 const props = defineProps<{
@@ -15,68 +15,78 @@ const emit = defineEmits<{
     'update:time': [string]
 }>()
 
+// Computed properties za v-model
 const selectedSize = computed({
     get: () => props.size,
     set: (value) => emit('update:size', value)
 })
 
-// Helper za dobijanje današnjeg datuma u ISO formatu
-function getTodayDate(): string {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0) // Resetovanje vremena na početak dana
-    return today.toISOString().split('T')[0]
-}
-
-// Helper za proveru da li je datum danas
-function isToday(date: string): boolean {
-    const today = getTodayDate()
-    return date === today
-}
-
-// Helper za proveru da li treba prikazati sutrašnji dan
-function shouldShowNextDay(): boolean {
-    const now = new Date()
-    const currentHour = now.getHours()
-    const currentMinutes = now.getMinutes()
-
-    // Ako je rano ujutru (pre 8:00)
-    if (currentHour < 8) {
-        return true
-    }
-
-    // Ako je kasno uveče (posle 21:00)
-    if (currentHour >= 21 || (currentHour === 20 && currentMinutes > 30)) {
-        return true
-    }
-
-    return false
-}
-
-// Inicijalno postavljanje datuma
-function getInitialDate(): string {
-    const today = getTodayDate()
-
-    if (shouldShowNextDay()) {
-        const tomorrow = new Date()
-        tomorrow.setDate(tomorrow.getDate() + 1)
-        return tomorrow.toISOString().split('T')[0]
-    }
-
-    return today
-}
-
-// Postavljamo inicijalne vrednosti
 const selectedDate = computed({
-    get: () => props.date || getInitialDate(),
+    get: () => props.date || getTodayDate(),
     set: (value) => emit('update:date', value)
 })
 
 const selectedTime = computed({
-    get: () => props.time,
+    get: () => props.time || '2000',
     set: (value) => emit('update:time', value)
 })
 
-// Opcije za broj osoba
+// Date helpers
+function getTodayDate(): string {
+    const now = new Date()
+    const bgTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Belgrade' }))
+    return bgTime.toISOString().split('T')[0]
+}
+
+function isToday(date: string): boolean {
+    const now = new Date()
+    const bgTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Belgrade' }))
+    return date === bgTime.toISOString().split('T')[0]
+}
+
+// Time helpers
+function getAvailableTimeSlots(): { value: string; label: string }[] {
+    // Za buduće datume prikazujemo sve termine
+    if (!isToday(selectedDate.value)) {
+        return generateAllTimeSlots()
+    }
+
+    // Za današnji dan
+    const now = new Date()
+    const bgTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Belgrade' }))
+    const currentHour = bgTime.getHours()
+
+    // Ako je nakon 21h, vraćamo prazan niz
+    if (currentHour >= 21) return []
+
+    // Počinjemo od 16h ili 2 sata nakon trenutnog vremena, šta god je kasnije
+    const startHour = Math.max(16, currentHour + 2)
+
+    return generateTimeSlots(startHour)
+}
+
+function generateAllTimeSlots(): { value: string; label: string }[] {
+    return generateTimeSlots(8) // Od 8h do 23h
+}
+
+function generateTimeSlots(startHour: number): { value: string; label: string }[] {
+    const slots: { value: string; label: string }[] = []
+
+    for (let hour = startHour; hour <= 23; hour++) {
+        slots.push({
+            value: `${hour.toString().padStart(2, '0')}00`,
+            label: `${hour}:00`
+        })
+        slots.push({
+            value: `${hour.toString().padStart(2, '0')}30`,
+            label: `${hour}:30`
+        })
+    }
+
+    return slots
+}
+
+// Opcije za dropdown-ove
 const partySizes = [
     { value: '1', label: '1 osoba' },
     { value: '2', label: '2 osobe' },
@@ -90,110 +100,9 @@ const partySizes = [
     { value: '10', label: '10 osoba' }
 ]
 
-// Helper funkcija za proveru vremena i datuma
-function getAvailableTimeOptions(): { value: string; label: string; }[] {
-    const now = new Date()
-    const currentHour = now.getHours()
-    const currentMinutes = now.getMinutes()
-    const selectedDateIsToday = isToday(selectedDate.value)
+const timeOptions = computed(() => getAvailableTimeSlots())
 
-    // Ako je danas i vreme je van radnog vremena, prebacujemo na sutra
-    if (selectedDateIsToday && shouldShowNextDay()) {
-        const tomorrow = new Date()
-        tomorrow.setDate(tomorrow.getDate() + 1)
-        selectedDate.value = tomorrow.toISOString().split('T')[0]
-        return generateFullSchedule()
-    }
-
-    // Za današnji dan, prikazujemo samo dostupne termine
-    if (selectedDateIsToday) {
-        const minHour = currentHour + 2
-        const minMinutes = currentMinutes
-        const availableSlots = generateScheduleFromTime(minHour, minMinutes)
-
-        // Ako nema dostupnih termina za danas, prebacujemo na sutra
-        if (availableSlots.length === 0) {
-            const tomorrow = new Date()
-            tomorrow.setDate(tomorrow.getDate() + 1)
-            selectedDate.value = tomorrow.toISOString().split('T')[0]
-            return generateFullSchedule()
-        }
-
-        return availableSlots
-    }
-
-    // Za buduće datume, prikazujemo sve termine
-    return generateFullSchedule()
-}
-
-// Helper za generisanje punog rasporeda (8:00-23:00)
-function generateFullSchedule(): { value: string; label: string; }[] {
-    const schedule: { value: string; label: string; }[] = []
-
-    for (let hour = 8; hour <= 23; hour++) {
-        // Dodajemo pun sat
-        schedule.push({
-            value: `${hour.toString().padStart(2, '0')}00`,
-            label: `${hour}:00`
-        })
-        // Dodajemo pola sata
-        schedule.push({
-            value: `${hour.toString().padStart(2, '0')}30`,
-            label: `${hour}:30`
-        })
-    }
-
-    return schedule
-}
-
-// Helper za generisanje rasporeda od određenog vremena
-function generateScheduleFromTime(hour: number, minutes: number): { value: string; label: string; }[] {
-    const schedule: { value: string; label: string; }[] = []
-
-    for (let h = hour; h <= 23; h++) {
-        // Za prvi sat proveravamo minute
-        if (h === hour) {
-            // Ako je prošlo pola sata, dodajemo samo :30
-            if (minutes <= 30) {
-                schedule.push({
-                    value: `${h.toString().padStart(2, '0')}30`,
-                    label: `${h}:30`
-                })
-            }
-            continue
-        }
-
-        // Za ostale sate dodajemo oba termina
-        schedule.push({
-            value: `${h.toString().padStart(2, '0')}00`,
-            label: `${h}:00`
-        })
-        schedule.push({
-            value: `${h.toString().padStart(2, '0')}30`,
-            label: `${h}:30`
-        })
-    }
-
-    return schedule
-}
-
-const timeOptions = computed(() => getAvailableTimeOptions())
-
-watch(selectedDate, () => {
-    const availableTimes = getAvailableTimeOptions()
-    if (!availableTimes.some(t => t.value === selectedTime.value)) {
-        selectedTime.value = availableTimes[0]?.value || '2000'
-    }
-})
-
-// Postavljamo inicijalno vreme
-onMounted(() => {
-    const availableTimes = getAvailableTimeOptions()
-    if (availableTimes.length > 0) {
-        emit('update:time', availableTimes[0].value)
-    }
-})
-
+// Event handlers
 function handleSearch() {
     const formattedDate = selectedDate.value.replace(/-/g, '')
     props.onSearch({
