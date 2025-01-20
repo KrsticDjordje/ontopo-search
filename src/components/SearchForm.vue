@@ -23,15 +23,33 @@ const selectedSize = computed({
 
 const selectedDate = computed({
     get: () => props.date || getTodayDate(),
-    set: (value) => emit('update:date', value)
+    set: (value) => {
+        emit('update:date', value)
+        // Kada se promeni datum, proveri dostupna vremena
+        const availableSlots = getAvailableTimeSlots()
+        if (availableSlots.length === 0 && isToday(value)) {
+            // Ako nema dostupnih termina za danas, prebaci na sutra
+            const tomorrow = new Date()
+            tomorrow.setDate(tomorrow.getDate() + 1)
+            emit('update:date', tomorrow.toISOString().split('T')[0])
+        }
+    }
 })
 
 const selectedTime = computed({
     get: () => {
-        // Ako nema prosleđenog vremena, uzima prvo dostupno
-        if (!props.time) {
-            const availableSlots = getAvailableTimeSlots()
-            return availableSlots.length > 0 ? availableSlots[0].value : '2000'
+        // Proveri dostupne termine
+        const availableSlots = getAvailableTimeSlots()
+        if (availableSlots.length === 0 && isToday(selectedDate.value)) {
+            // Ako nema termina za danas, prebaci na sutra
+            const tomorrow = new Date()
+            tomorrow.setDate(tomorrow.getDate() + 1)
+            emit('update:date', tomorrow.toISOString().split('T')[0])
+            return '2000' // Default vreme za novi dan
+        }
+        // Ako nema prosleđenog vremena ili nije dostupno, uzmi prvo dostupno
+        if (!props.time || !availableSlots.find(slot => slot.value === props.time)) {
+            return availableSlots[0]?.value || '2000'
         }
         return props.time
     },
@@ -156,7 +174,5 @@ function handleSearch() {
 </template>
 
 <script lang="ts">
-export default {
-    name: 'SearchForm'
-}
+export default { name: 'SearchForm' }
 </script>

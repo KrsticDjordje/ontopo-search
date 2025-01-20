@@ -1,13 +1,28 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SearchForm from '../components/SearchForm.vue'
 
 const router = useRouter()
 
+function getTodayOrNextDay(): string {
+    const now = new Date()
+    const bgTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Belgrade' }))
+    const currentHour = bgTime.getHours()
+
+    // Ako je nakon 21h, postavi datum na sutrašnji datum
+    if (currentHour >= 21) {
+        const tomorrow = new Date(bgTime)
+        tomorrow.setDate(tomorrow.getDate() + 1)
+        return tomorrow.toISOString().split('T')[0]
+    }
+
+    return bgTime.toISOString().split('T')[0]
+}
+
 // Inicijalne vrednosti za formu
 const selectedSize = ref('2')
-const selectedDate = ref(new Date().toISOString().split('T')[0])
+const selectedDate = ref(getTodayOrNextDay())
 const selectedTime = ref('')
 
 function handleSearch(criteria: { size: string; date: string; time: string }) {
@@ -34,7 +49,7 @@ function handleSearch(criteria: { size: string; date: string; time: string }) {
         </header>
 
         <!-- Main Content -->
-        <main class="bg-[#CCE6FF] pt-16 h-screen content-center">
+        <main class="bg-[#CCE6FF] h-screen content-center">
             <div class="max-w-7xl mx-auto px-4 pb-5">
                 <!-- Landing sekcija -->
                 <div class="pt-8 pb-2">

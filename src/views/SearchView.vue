@@ -92,6 +92,10 @@ onMounted(() => {
 })
 </script>
 
+<script lang="ts">
+export default { name: 'SearchView' }
+</script>
+
 <template>
     <div class="font-inter">
         <!-- Header -->

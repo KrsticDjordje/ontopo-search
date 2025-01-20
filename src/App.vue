@@ -3,6 +3,10 @@ import { RouterView } from 'vue-router'
 import ScrollToTop from './components/ScrollToTop.vue'
 </script>
 
+<script lang="ts">
+export default { name: 'App' }
+</script>
+
 <template>
   <RouterView />
   <ScrollToTop />

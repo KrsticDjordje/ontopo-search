@@ -28,6 +28,10 @@ function scrollToTop() {
 }
 </script>
 
+<script lang="ts">
+export default { name: 'ScrollToTop' }
+</script>
+
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {

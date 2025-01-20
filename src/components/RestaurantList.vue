@@ -56,6 +56,10 @@ onMounted(() => {
 onUnmounted(() => observer.value?.disconnect())
 </script>
 
+<script lang="ts">
+export default { name: 'RestaurantList' }
+</script>
+
 <template>
     <div class="restaurant-list space-y-8">
         <!-- Initial loading state -->
