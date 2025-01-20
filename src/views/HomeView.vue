@@ -2,27 +2,14 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SearchForm from '../components/SearchForm.vue'
+import { useTimeManagement } from '@/composables/useTimeManagement'
 
 const router = useRouter()
-
-function getTodayOrNextDay(): string {
-    const now = new Date()
-    const bgTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Belgrade' }))
-    const currentHour = bgTime.getHours()
-
-    // Ako je nakon 22h, postavi datum na sutrašnji datum
-    if (currentHour >= 22) {
-        const tomorrow = new Date(bgTime)
-        tomorrow.setDate(tomorrow.getDate() + 1)
-        return tomorrow.toISOString().split('T')[0]
-    }
-
-    return bgTime.toISOString().split('T')[0]
-}
+const selectedDate = ref('')
+const { getTodayOrNextDay } = useTimeManagement(selectedDate)
 
 // Inicijalne vrednosti za formu
 const selectedSize = ref('2')
-const selectedDate = ref(getTodayOrNextDay())
 const selectedTime = ref('')
 
 function handleSearch(criteria: { size: string; date: string; time: string }) {
@@ -35,6 +22,9 @@ function handleSearch(criteria: { size: string; date: string; time: string }) {
         }
     })
 }
+
+// Inicijalne vrednosti
+selectedDate.value = getTodayOrNextDay()
 </script>
 
 <template>

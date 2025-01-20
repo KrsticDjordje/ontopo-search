@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import CustomDropdown from '../components/CustomDropdown.vue'
+import { useTimeManagement } from '@/composables/useTimeManagement'
 
 const props = defineProps<{
     onSearch: (criteria: { size: string; date: string; time: string }) => void
@@ -56,60 +57,7 @@ const selectedTime = computed({
     set: (value) => emit('update:time', value)
 })
 
-// Date helpers
-function getTodayDate(): string {
-    const now = new Date()
-    const bgTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Belgrade' }))
-    return bgTime.toISOString().split('T')[0]
-}
-
-function isToday(date: string): boolean {
-    const now = new Date()
-    const bgTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Belgrade' }))
-    return date === bgTime.toISOString().split('T')[0]
-}
-
-// Time helpers
-function getAvailableTimeSlots(): { value: string; label: string }[] {
-    // Za buduće datume prikazujemo sve termine
-    if (!isToday(selectedDate.value)) {
-        return generateAllTimeSlots()
-    }
-
-    // Za današnji dan
-    const now = new Date()
-    const bgTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Belgrade' }))
-    const currentHour = bgTime.getHours()
-
-    // Ako je nakon 22h, vraćamo prazan niz
-    if (currentHour >= 22) return []
-
-    // Počinjemo od 16h ili 2 sata nakon trenutnog vremena, šta god je kasnije
-    const startHour = Math.max(16, currentHour + 1)
-
-    return generateTimeSlots(startHour)
-}
-
-function generateAllTimeSlots(): { value: string; label: string }[] {
-    return generateTimeSlots(8) // Od 8h do 23h
-}
-
-function generateTimeSlots(startHour: number): { value: string; label: string }[] {
-    const slots: { value: string; label: string }[] = []
-
-    for (let hour = startHour; hour <= 23; hour++) {
-        slots.push({
-            value: `${hour.toString().padStart(2, '0')}00`,
-            label: `${hour}:00`
-        })
-        slots.push({
-            value: `${hour.toString().padStart(2, '0')}30`,
-            label: `${hour}:30`
-        })
-    }
-
-    return slots
-}
+const { getTodayDate, isToday, getAvailableTimeSlots, timeOptions } = useTimeManagement(selectedDate)
 
 // Opcije za dropdown-ove
 const partySizes = [
@@ -125,22 +73,15 @@ const partySizes = [
     { value: '10', label: '10 osoba' }
 ]
 
-const timeOptions = computed(() => getAvailableTimeSlots())
-
 // Event handlers
 function handleSearch() {
-    // Proveri da li je izabrano vreme dostupno
-    const availableSlots = getAvailableTimeSlots()
-    const selectedTimeSlot = availableSlots.find(slot => slot.value === selectedTime.value)
-
-    // Ako nije, uzmi prvo dostupno vreme
-    const timeToUse = selectedTimeSlot ? selectedTime.value : (availableSlots[0]?.value || '2000')
-
     const formattedDate = selectedDate.value.replace(/-/g, '')
+    const formattedTime = selectedTime.value.padStart(4, '0')
+
     props.onSearch({
         size: selectedSize.value,
         date: formattedDate,
-        time: timeToUse
+        time: formattedTime
     })
 }
 </script>
