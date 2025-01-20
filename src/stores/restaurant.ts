@@ -18,19 +18,19 @@ export const useRestaurantStore = defineStore('restaurant', () => {
             console.log('🔍 Inicijalizacija pretrage sa kriterijumima:', criteria)
             
             const loginResponse = await loginAnonymously()
-            console.log('🔑 Login response:', loginResponse)
+            // console.log(' Login response:', loginResponse)
             
             const searchToken = await getSearchToken(loginResponse.jwt_token, criteria)
-            console.log('🎫 Search token:', searchToken)
+            // console.log(' Search token:', searchToken)
             searchId.value = searchToken.search_id
             
             const results = await searchRestaurants(loginResponse.jwt_token, searchId.value)
-            console.log('📍 Initial search results:', results)
+            // console.log(' Initial search results:', results)
             
             restaurants.value = results.posts
             total.value = results.total
         } catch (error) {
-            console.error('❌ Search error:', error)
+            // console.error(' Search error:', error)
         } finally {
             isLoading.value = false
         }
@@ -43,19 +43,19 @@ export const useRestaurantStore = defineStore('restaurant', () => {
         const existingRestaurants = toRaw(restaurants.value)
         
         try {
-            console.log('📥 Loading more results, page:', currentPage.value + 1)
+            // console.log(' Loading more results, page:', currentPage.value + 1)
             
             const loginResponse = await loginAnonymously()
             const results = await searchRestaurants(
                 loginResponse.jwt_token,
                 searchId.value
             )
-            console.log('�� Additional results:', results)
+            // console.log('Additional results:', results)
             
             restaurants.value = [...existingRestaurants, ...results.posts]
             currentPage.value++
         } catch (error) {
-            console.error('❌ Load more error:', error)
+            // console.error(' Load more error:', error)
             restaurants.value = existingRestaurants
         } finally {
             isLoading.value = false

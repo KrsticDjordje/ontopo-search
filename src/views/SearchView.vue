@@ -102,8 +102,8 @@ export default { name: 'SearchView' }
         <header class="bg-white shadow-sm fixed w-full top-0 z-50">
             <div class="max-w-7xl mx-auto px-4">
                 <div class="flex items-center justify-between py-4">
-                    <button @click="handleBack" class="text-gray-600 hover:text-gray-900">
-                        <ChevronLeftIcon class="w-6 h-6" />
+                    <button @click="handleBack" class="text-gray-600 hover:text-gray-900 flex">
+                        <ChevronLeftIcon class="w-6 h-6" /> Nazad
                     </button>
                     <img src="https://ontopo.com/assets/imgs/general/logo.svg" alt="Ontopo" class="h-8 md:h-10">
                     <div class="w-6"></div>
