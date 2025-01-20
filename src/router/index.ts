@@ -1,12 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import SearchView from '@/views/SearchView.vue'
+import HomeView from '../views/HomeView.vue'
+import SearchView from '../views/SearchView.vue'
 
-export const router = createRouter({
+const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      redirect: '/search'
+      name: 'home',
+      component: HomeView
     },
     {
       path: '/search',

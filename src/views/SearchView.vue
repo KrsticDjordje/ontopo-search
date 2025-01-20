@@ -1,18 +1,31 @@
 <script setup lang="ts">
-import { ref, nextTick, computed } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useRestaurantStore } from '../stores/restaurant'
 import RestaurantList from '../components/RestaurantList.vue'
 import SearchForm from '../components/SearchForm.vue'
-import { UserIcon, CalendarIcon, ClockIcon } from '@heroicons/vue/24/outline'
+import { UserIcon, CalendarIcon, ClockIcon, ChevronLeftIcon } from '@heroicons/vue/24/outline'
 
+const route = useRoute()
+const router = useRouter()
 const store = useRestaurantStore()
-const showResults = ref(false)
-const resultsRef = ref<HTMLElement | null>(null)
-const selectedSize = ref('2')
-const selectedDate = ref(new Date().toISOString().split('T')[0])
-const selectedTime = ref('2000')
 
-// Helper za formatiranje datuma
+// Helper za parsiranje datuma iz URL-a
+function parseQueryDate(dateStr?: string): string {
+    if (!dateStr) return new Date().toISOString().split('T')[0]
+
+    // Ako je datum u formatu YYYYMMDD, konvertuj ga u YYYY-MM-DD
+    if (dateStr.length === 8) {
+        return `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`
+    }
+    return dateStr
+}
+
+const selectedSize = ref(route.query.size?.toString() || '2')
+const selectedDate = ref(parseQueryDate(route.query.date?.toString()))
+const selectedTime = ref(route.query.time?.toString() || '2000')
+
+// Helper za formatiranje datuma za prikaz
 function formatDate(date: string): string {
     if (date === new Date().toISOString().split('T')[0]) return 'Danas'
     const d = new Date(date)
@@ -38,19 +51,30 @@ const partySizes = [
     { value: '10', label: '10 osoba' }
 ]
 
-async function handleSearch(criteria: { size: string; date: string; time: string }) {
-    showResults.value = true
+function handleSearch(criteria: { size: string; date: string; time: string }) {
+    router.push({
+        query: {
+            size: criteria.size,
+            date: criteria.date.replace(/-/g, ''), // Formatiramo datum za URL
+            time: criteria.time
+        }
+    })
+    store.initializeSearch(criteria)
+}
 
-    await nextTick()
-    if (resultsRef.value) {
-        resultsRef.value.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
+function handleBack() {
+    router.push('/')
+}
+
+onMounted(() => {
+    if (route.query.size && route.query.date && route.query.time) {
+        store.initializeSearch({
+            size: route.query.size.toString(),
+            date: route.query.date.toString(),
+            time: route.query.time.toString()
         })
     }
-
-    await store.initializeSearch(criteria)
-}
+})
 </script>
 
 <template>
@@ -58,73 +82,51 @@ async function handleSearch(criteria: { size: string; date: string; time: string
         <!-- Header -->
         <header class="bg-white shadow-sm fixed w-full top-0 z-50">
             <div class="max-w-7xl mx-auto px-4">
-                <div class="flex justify-center py-4">
+                <div class="flex items-center justify-between py-4">
+                    <button @click="handleBack" class="text-gray-600 hover:text-gray-900">
+                        <ChevronLeftIcon class="w-6 h-6" />
+                    </button>
                     <img src="https://ontopo.com/assets/imgs/general/logo.svg" alt="Ontopo" class="h-8 md:h-10">
+                    <div class="w-6"></div>
                 </div>
             </div>
         </header>
 
         <!-- Main Content -->
-        <main class="bg-[#CCE6FF] pt-16">
+        <main class="bg-[#CCE6FF] pt-16 min-h-screen">
             <div class="max-w-7xl mx-auto px-4 pb-5">
-                <!-- Landing sekcija -->
-                <div class="pt-8 pb-2">
-                    <div class="flex flex-col md:flex-row items-center md:gap-12">
-                        <!-- Text i Search sekcija -->
-                        <div class="flex-2 md:max-w-2xl">
-                            <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
-                                Kulinarsko iskustvo u Beogradu
-                            </h1>
-                            <p class="text-base md:text-lg text-gray-600 mb-8 md:mb-14">
-                                Oseti njegov duh gde svaki zalogaj otkriva priču o tradiciji i inovaciji.
-                                Neka gastronomija Beograda probudi sva tvoja čula i učini da želiš još.
-                            </p>
-                            <SearchForm :on-search="handleSearch" v-model:size="selectedSize"
-                                v-model:date="selectedDate" v-model:time="selectedTime" />
-                        </div>
-
-                        <!-- Image sekcija - sakrivena na mobilnim uređajima -->
-                        <div class="hidden md:block flex-1 justify-center items-center">
-                            <img src="https://res.cloudinary.com/ontopo/image/upload/q_auto:eco,c_crop,x_0,y_0,w_1080,h_1080/w_750/v1708860226/assets/654b43cd4f616f00143332e3/654b43cd4f616f00143332e3/2.png"
-                                alt="Food plate" class="w-full max-w-md rounded-full">
-                        </div>
-                    </div>
+                <!-- Search Form -->
+                <div class="py-6">
+                    <SearchForm :on-search="handleSearch" v-model:size="selectedSize" v-model:date="selectedDate"
+                        v-model:time="selectedTime" />
                 </div>
 
-                <!-- Rezultati pretrage -->
-                <Transition enter-active-class="transition duration-500 ease-out"
-                    enter-from-class="transform translate-y-10 opacity-0"
-                    enter-to-class="transform translate-y-0 opacity-100"
-                    leave-active-class="transition duration-300 ease-in"
-                    leave-from-class="transform translate-y-0 opacity-100"
-                    leave-to-class="transform translate-y-10 opacity-0">
-                    <div v-if="showResults" ref="resultsRef" class="mt-8 bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-                        <!-- Prikaz izabranih kriterijuma -->
-                        <div class="mb-8 pb-6 border-b border-gray-200">
-                            <h2 class="text-2xl font-semibold mb-4">Rezultati pretrage</h2>
-                            <div class="flex gap-6 text-gray-600">
-                                <div class="flex items-center gap-1">
-                                    <UserIcon class="w-5 h-5" />
-                                    <span>{{ partySizes.find(s => s.value === selectedSize)?.label }}</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <CalendarIcon class="w-5 h-5" />
-                                    <span>{{ formatDate(selectedDate) }}</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <ClockIcon class="w-5 h-5" />
-                                    <span>{{ getTimeLabel(selectedTime) }}</span>
-                                </div>
+                <!-- Results -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+                    <!-- Prikaz izabranih kriterijuma -->
+                    <div class="mb-8 pb-6 border-b border-gray-200">
+                        <h2 class="text-2xl font-semibold mb-4">Rezultati pretrage</h2>
+                        <div class="flex gap-6 text-gray-600">
+                            <div class="flex items-center gap-1">
+                                <UserIcon class="w-5 h-5" />
+                                <span>{{ partySizes.find(s => s.value === selectedSize)?.label }}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <CalendarIcon class="w-5 h-5" />
+                                <span>{{ formatDate(selectedDate) }}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <ClockIcon class="w-5 h-5" />
+                                <span>{{ getTimeLabel(selectedTime) }}</span>
                             </div>
                         </div>
-
-                        <!-- Lista restorana -->
-                        <RestaurantList :restaurants="store.restaurants"
-                            :has-more="store.restaurants.length < store.total" :loading="store.isLoading"
-                            :is-initial-load="!store.restaurants.length" :requested-time="selectedTime"
-                            @load-more="store.loadMore" />
                     </div>
-                </Transition>
+
+                    <!-- Lista restorana -->
+                    <RestaurantList :restaurants="store.restaurants" :has-more="store.restaurants.length < store.total"
+                        :loading="store.isLoading" :is-initial-load="!store.restaurants.length"
+                        :requested-time="selectedTime" @load-more="store.loadMore" />
+                </div>
             </div>
         </main>
     </div>
