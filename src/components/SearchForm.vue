@@ -81,11 +81,11 @@ function getAvailableTimeSlots(): { value: string; label: string }[] {
     const bgTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Belgrade' }))
     const currentHour = bgTime.getHours()
 
-    // Ako je nakon 21h, vraćamo prazan niz
-    if (currentHour >= 21) return []
+    // Ako je nakon 22h, vraćamo prazan niz
+    if (currentHour >= 22) return []
 
     // Počinjemo od 16h ili 2 sata nakon trenutnog vremena, šta god je kasnije
-    const startHour = Math.max(16, currentHour + 2)
+    const startHour = Math.max(16, currentHour + 1)
 
     return generateTimeSlots(startHour)
 }

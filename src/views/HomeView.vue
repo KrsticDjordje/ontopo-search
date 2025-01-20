@@ -10,8 +10,8 @@ function getTodayOrNextDay(): string {
     const bgTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Belgrade' }))
     const currentHour = bgTime.getHours()
 
-    // Ako je nakon 21h, postavi datum na sutrašnji datum
-    if (currentHour >= 21) {
+    // Ako je nakon 22h, postavi datum na sutrašnji datum
+    if (currentHour >= 22) {
         const tomorrow = new Date(bgTime)
         tomorrow.setDate(tomorrow.getDate() + 1)
         return tomorrow.toISOString().split('T')[0]
