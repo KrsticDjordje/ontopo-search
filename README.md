@@ -12,7 +12,7 @@
 ## Instalacija
 1. Klonirajte repozitorijum:
    ```bash
-   git clone https://github.com/your-username/ontopo-search.git
+   git clone https://github.com/KrsticDjordje/ontopo-search.git
    cd ontopo-search
    ```
 2. Instalirajte zavisnosti:
