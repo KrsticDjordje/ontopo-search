@@ -49,9 +49,9 @@ const selectedTime = computed({
             return '2000' // Default vreme za novi dan
         }
         // Ako nema prosleđenog vremena ili nije dostupno, uzmi prvo dostupno
-        // if (!props.time || !availableSlots.find(slot => slot.value === props.time)) {
-        //     return availableSlots[0]?.value || '2000'
-        // }
+        if (!props.time || !availableSlots.find(slot => slot.value === props.time)) {
+            return availableSlots[0]?.value || '2000'
+        }
         return props.time
     },
     set: (value) => emit('update:time', value)
