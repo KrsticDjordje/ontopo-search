@@ -38,6 +38,13 @@ function hasOtherTimeSlots(restaurant: Restaurant): boolean {
     ) || false
 }
 
+// Dodajemo helper funkciju za proveru da li restoran ima traženi termin
+function hasRequestedTimeSlot(restaurant: Restaurant): boolean {
+    return restaurant.availability?.areas?.some(area =>
+        area.options?.some(opt => isExactRequestedTime(opt.time))
+    ) || false
+}
+
 // Infinite scroll
 const observer = ref<IntersectionObserver | null>(null)
 const loadTrigger = ref<HTMLDivElement | null>(null)
@@ -74,6 +81,16 @@ export default { name: 'RestaurantList' }
 
         <!-- Lista restorana -->
         <div v-else class="space-y-6">
+
+            <!-- Poruka kada nema termina -->
+            <div v-if="restaurants.length > 0 && !restaurants.some(r => hasRequestedTimeSlot(r))" 
+                class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <p class="text-yellow-800 font-medium">
+                    Nema slobodnih mesta za vreme {{ formatTime(requestedTime || '') }}. 
+                    Molimo vas da proverite ostale termine.
+                </p>
+            </div>
+          
             <div v-for="restaurant in restaurants" :key="restaurant.post.slug"
                 class="bg-[#f9f9f9] rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-200">
                 <div class="flex flex-col sm:flex-row">
